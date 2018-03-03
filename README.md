@@ -4,7 +4,7 @@
 
 ## Goals
 
-Very simple programming style example in vue.js
+Very simple programming style example in vue.js.
 The site is published at [https://edwards33.github.io/vue-app-example/](https://edwards33.github.io/vue-app-example/)
 
 ## Libraries and Frameworks used
