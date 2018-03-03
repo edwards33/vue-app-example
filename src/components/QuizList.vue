@@ -3,6 +3,7 @@
 
     <transition name="fade" mode="out-in">
       <div v-if="viewState === 'quizzes'" key="quizzes">
+        <div class="ui hidden divider"></div>
         <quiz :id="'quiz_' + quiz.id" v-for="quiz in quizzes" :key="quiz.id" :quiz="quiz" @view-quiz="viewQuiz" @delete-quiz="deleteQuiz"></quiz>
       </div>
 
