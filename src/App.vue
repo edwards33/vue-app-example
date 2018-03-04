@@ -11,6 +11,32 @@
 import QuizList from './components/QuizList'
 import CreateQuiz from './components/CreateQuiz'
 import CreateFlashCard from './components/CreateFlashCard'
+import * as _ from 'lodash'
+
+const DEFAULT_QUIZZES = [{
+    id: 1,
+    title: "Chapter 1",
+    description: "This is a sample description.",
+    cards: [
+      {
+        id: 1,
+        term: "Some Word",
+        definition: "Some Definition"
+      },
+      {
+        id: 2,
+        term: "Another Word",
+        definition: "The definition of another word"
+      }
+    ]
+  },{
+    id: 2,
+    title: "Chapter 2",
+    description: "This is a another sample description.",
+    cards: [
+
+    ]
+}]
 
 export default {
   name: 'app',
@@ -18,6 +44,25 @@ export default {
     QuizList,
     CreateQuiz,
     CreateFlashCard
+  },
+  mounted() {
+    var quizzesSaved = this.$store.getters.quizzes
+    var cardsSaved = this.$store.getters.cards
+
+    if(quizzesSaved.length === 0) {
+      this.saveDefaultQuizzesToStore()
+      quizzesSaved = this.$store.getters.quizzes
+    }
+
+    quizzesSaved.forEach(quiz => {
+      quiz['cards'] = cardsSaved.filter(card => card.quizId === quiz.id)
+      this.quizzes.push(quiz)
+    })
+  },
+  computed: {
+    quizzesStored() {
+      return this.$store.getters.quizzes
+    }
   },
   methods: {
     createQuiz(newQuiz) {
@@ -30,7 +75,9 @@ export default {
         title: newQuiz.title,
         description: newQuiz.description,
         cards: []
-      });
+      })
+
+      this.saveQuizToStore(nextId, newQuiz.title, newQuiz.description)
     },
     changeState(state) {
       this.viewState = state.viewState
@@ -60,35 +107,41 @@ export default {
         id: nextId,
         term: newCard.term,
         definition: newCard.definition
-      });
+      })
+
+      this.saveCardToStore(nextId, id, newCard.term, newCard.definition)
+    },
+    saveQuizToStore(id, title, description) {
+      var quizzesSaved = this.$store.getters.quizzes
+      quizzesSaved.push({
+        id,
+        title,
+        description
+      })
+      this.$store.dispatch('setQuizzes', quizzesSaved)
+    },
+    saveCardToStore(id, quizId, term, definition) {
+      var cardsToStore = this.$store.getters.cards
+      cardsToStore.push({
+        id,
+        quizId,
+        term,
+        definition
+      })
+      this.$store.dispatch('setCards', cardsToStore)
+    },
+    saveDefaultQuizzesToStore() {
+      _.forEach(DEFAULT_QUIZZES, quiz => {
+        this.saveQuizToStore(quiz.id, quiz.title, quiz.description)
+        _.forEach(quiz.cards, card => {
+          this.saveCardToStore(card.id, quiz.id, card.term, card.definition)
+        })
+      })
     }
   },
   data() {
     return {
-      quizzes: [{
-        id: 1,
-        title: "Chapter 1",
-        description: "This is a sample description.",
-        cards: [
-          {
-            id: 1,
-            term: "Some Word",
-            definition: "Some Definition"
-          },
-          {
-            id: 2,
-            term: "Another Word",
-            definition: "The definition of another word"
-          }
-        ]
-      },{
-        id: 2,
-        title: "Chapter 2",
-        description: "This is a another sample description.",
-        cards: [
-
-        ]
-      }],
+      quizzes: [],
       viewState: "quizzes",
       activeQuiz: 0
     }

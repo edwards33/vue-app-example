@@ -29,6 +29,7 @@
 
 import Quiz from './Quiz'
 import FlashCard from './FlashCard'
+import * as _ from 'lodash'
 
 export default {
   props:['quizzes'],
@@ -65,6 +66,7 @@ export default {
         const quizIndex = parent.quizzes.indexOf(quiz)
         parent.quizzes.splice(quizIndex, 1)
       })
+      this.deleteQuizAndCardsFromStore(quizId)
     },
     deleteCard(card) {
       const cardId = card.id
@@ -73,6 +75,26 @@ export default {
         const cardIndex = parent.selectedQuiz.cards.indexOf(card)
         parent.selectedQuiz.cards.splice(cardIndex, 1)
       })
+      this.deleteCardsFromStore(this.selectedQuiz.id, cardId)
+    },
+    deleteQuizAndCardsFromStore(quizId) {
+      var quizzesSaved = this.$store.getters.quizzes
+      var cardsSaved = this.$store.getters.cards
+
+      var cardsToSave = cardsSaved.filter(card => card.quizId !== quizId)
+      var quizzesToSave = quizzesSaved.filter(quiz => quiz.id !== quizId)
+
+      this.$store.dispatch('setQuizzes', quizzesToSave.slice())
+      this.$store.dispatch('setCards', cardsToSave.slice())
+    },
+    deleteCardsFromStore(quizId, cardId) {
+      var cardsSaved = this.$store.getters.cards
+
+      var card = _.filter(cardsSaved, { 'id': cardId, 'quizId': quizId })
+
+      _.pull(cardsSaved, card[0])
+
+      this.$store.dispatch('setCards', cardsSaved.slice())
     }
   }
 }
