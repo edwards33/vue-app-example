@@ -10,8 +10,10 @@ The site is published at [https://edwards33.github.io/vue-app-example/](https://
 ## Libraries and Frameworks used
 
 * [Vue.js](https://vuejs.org)
+* [Vuex](https://vuex.vuejs.org/)
 * [Semantic UI](https://semantic-ui.com)
 * [jQuery](https://jquery.com)
+* [lodash](https://lodash.com/)
 
 ## Build Setup
 
