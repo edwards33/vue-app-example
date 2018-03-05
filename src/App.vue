@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <quiz-list :quizzes="quizzes" @change-state="changeState"></quiz-list>
+    <quiz-list :lesson="beginLesson" :quizzes="quizzes" @change-state="changeState" @control-lesson="startOrStopLesson"></quiz-list>
     <create-quiz v-show="viewState === 'quizzes'" @create-quiz="createQuiz"></create-quiz>
-    <create-flash-card v-show="viewState === 'cards'" @create-flash-card="createFlashCard"></create-flash-card>
+    <create-flash-card v-show="viewState === 'cards'" @create-flash-card="createFlashCard" @control-lesson="startOrStopLesson" v-if="!beginLesson"></create-flash-card>
   </div>
 </template>
 
@@ -58,11 +58,6 @@ export default {
       quiz['cards'] = cardsSaved.filter(card => card.quizId === quiz.id)
       this.quizzes.push(quiz)
     })
-  },
-  computed: {
-    quizzesStored() {
-      return this.$store.getters.quizzes
-    }
   },
   methods: {
     createQuiz(newQuiz) {
@@ -137,10 +132,14 @@ export default {
           this.saveCardToStore(card.id, quiz.id, card.term, card.definition)
         })
       })
+    },
+    startOrStopLesson(islessonControl) {
+      this.beginLesson = islessonControl
     }
   },
   data() {
     return {
+      beginLesson: false,
       quizzes: [],
       viewState: "quizzes",
       activeQuiz: 0

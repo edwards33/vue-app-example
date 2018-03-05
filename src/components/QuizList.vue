@@ -13,8 +13,11 @@
           Back
         </button>
 
-        <div id="card_view" class="ui cards">
+        <div id="card_view" class="ui cards" v-if="!lesson">
           <flash-card :id="'card_' + card.id" v-for="card in this.selectedQuiz.cards" :key="card.id" :card="card" @delete-card="deleteCard"></flash-card>
+        </div>
+        <div id="lesson-view" class="ui center aligned segment" v-if="lesson">
+          <lesson :front="textFront" :back="textBack" :index="currentIndex" @open-next="openNextCard"></lesson>
         </div>
       </div>
 
@@ -29,23 +32,33 @@
 
 import Quiz from './Quiz'
 import FlashCard from './FlashCard'
+import Lesson from './Lesson'
 import * as _ from 'lodash'
 
 export default {
-  props:['quizzes'],
+  props:['quizzes', 'lesson'],
   components: {
     Quiz,
     FlashCard,
+    Lesson
   },
   data() {
     return {
       selectedQuiz: {cards:[]},
       viewState: "quizzes",
+      shuffledCards: [],
+      currentIndex: 0,
+      textFront: '',
+      textBack: ''
     }
   },
   methods: {
     viewQuiz(quiz) {
       this.selectedQuiz = quiz
+      this.shuffleSetOfCards()
+      var firstCard = this.shuffledCards[0]
+      this.setFlashCard(0, firstCard)
+
       this.viewState = "cards"
       this.$emit('change-state', {
         viewState: "cards",
@@ -53,6 +66,9 @@ export default {
       })
     },
     viewQuizzes() {
+      if(this.lesson) {
+        this.$emit('control-lesson', false)
+      }
       this.viewState = "quizzes"
       this.$emit('change-state', {
         viewState: "quizzes",
@@ -95,6 +111,33 @@ export default {
       _.pull(cardsSaved, card[0])
 
       this.$store.dispatch('setCards', cardsSaved.slice())
+    },
+    shuffleSetOfCards() {
+      this.shuffledCards = _.shuffle(this.selectedQuiz.cards)
+    },
+    setFlashCard(index, card) {
+      this.textFront = card.term
+      this.textBack = card.definition
+      this.currentIndex = index
+    },
+    openNextCard(index) {
+      index++
+      if(this.shuffledCards.length > index) {
+        var card = this.shuffledCards[index]
+        this.setFlashCard(index, card)
+      }
+      else {
+        this.shuffleSetOfCards()
+        this.setFlashCard(0, this.shuffledCards[0])
+        this.$emit('control-lesson', false)
+      }
+    }
+  },
+  watch: {
+    lesson(value) {
+      if(true) {
+        this.shuffleSetOfCards()
+      }
     }
   }
 }

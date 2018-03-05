@@ -4,6 +4,9 @@
     <button class="ui basic button icon" v-show="!isCreating" @click="openForm">
       <i class="plus icon"></i>
     </button>
+    <button class="ui basic button icon" v-show="!isCreating" @click="controlLesson">
+      <i class="tv icon"></i>
+    </button>
 
     <div class="ui centered card" v-show="isCreating">
       <div class="content">
@@ -54,6 +57,9 @@ export default {
       this.termText = ""
       this.definitionText = ""
       this.isCreating = false
+    },
+    controlLesson() {
+      this.$emit('control-lesson', true)
     }
   }
 }
